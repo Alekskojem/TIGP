@@ -7,13 +7,13 @@ services:
       - ./nginx:/etc/nginx/conf.d  # Mount the Nginx configuration directory
     ports:
       - '8080:80'  # Expose Nginx on port 8080
+    networks:
+      - monitoring # Connect the Nginx container to the monitoring network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080"] # Health check for Nginx
       interval: 10s
       timeout: 5s
       retries: 2
-      networks:
-      - monitoring  # Connect the Nginx container to the monitoring network
   grafana:
     image: grafana/grafana-enterprise
     container_name: grafana
@@ -53,7 +53,7 @@ services:
       - influxdb
     networks:
       - monitoring  # Connect the Nginx container to the monitoring network
-      
+
     volumes:
       # Mount for telegraf config
       - ./telegraf/mytelegraf.conf:/etc/telegraf/telegraf.conf:ro
