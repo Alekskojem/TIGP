@@ -12,6 +12,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 2
+      networks:
+      - monitoring  # Connect the Nginx container to the monitoring network
   grafana:
     image: grafana/grafana-enterprise
     container_name: grafana
@@ -27,6 +29,8 @@ services:
       - '3000:3000'  # Expose Grafana on port 3000
     volumes:
       - grafana_data:/var/lib/grafana  # Mount the Grafana data directory
+    networks:
+      - monitoring  # Connect the Nginx container to the monitoring network
   
   influxdb:
     image: influxdb:2.6-alpine
@@ -39,12 +43,17 @@ services:
       - influxdbv2:/var/lib/influxdb2:rw
     ports:
       - "8086:8086"
+    networks:
+      - monitoring  # Connect the Nginx container to the monitoring network
   telegraf:
     image: telegraf:1.25-alpine
     container_name: telegraf
     restart: always
     depends_on:
       - influxdb
+    networks:
+      - monitoring  # Connect the Nginx container to the monitoring network
+      
     volumes:
       # Mount for telegraf config
       - ./telegraf/mytelegraf.conf:/etc/telegraf/telegraf.conf:ro
