@@ -1,4 +1,33 @@
 services:
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    restart: always
+    volumes:
+      - ./nginx:/etc/nginx/conf.d  # Mount the Nginx configuration directory
+    ports:
+      - '8080:80'  # Expose Nginx on port 8080
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080"] # Health check for Nginx
+      interval: 10s
+      timeout: 5s
+      retries: 2
+  grafana:
+    image: grafana/grafana-enterprise
+    container_name: grafana
+    restart: always
+    depends_on:
+      - influxdb
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    links:
+      - influxdb
+    ports:
+      - '3000:3000'  # Expose Grafana on port 3000
+    volumes:
+      - grafana_data:/var/lib/grafana  # Mount the Grafana data directory
+  
   influxdb:
     image: influxdb:2.6-alpine
     env_file:
@@ -20,3 +49,4 @@ services:
 
 volumes:
   influxdbv2:
+  grafana_data:
